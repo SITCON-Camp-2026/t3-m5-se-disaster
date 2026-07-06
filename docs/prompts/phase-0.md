@@ -3,7 +3,7 @@
 ## 先分析，不寫 code
 
 ```text
-請先閱讀 AGENTS.md、docs/course-context.md、docs/brief.md，以及 src/fixtures/phase-0/messy-reports.json。
+請先閱讀 AGENTS.md、docs/course-context.md、docs/output-paths.md、docs/brief.md，以及 src/fixtures/phase-0/messy-reports.json。
 
 目前是 Phase 0 混亂 Sprint。請不要設計完整災害系統，也不要修改 CommonRecord，不要把 dirty data 移到 shared fixtures。
 
@@ -13,6 +13,7 @@
 3. 哪些欄位可能缺失？
 4. 哪些地方不能自動判斷？
 5. 如果要做一個 30 分鐘內完成的最小 UI，建議顯示哪些欄位？
+6. 這個 UI 應該修改哪些檔案，才能出現在 GitHub Pages 首頁？
 
 請先只輸出分析與建議，不要修改檔案。
 ```
@@ -21,6 +22,8 @@
 
 ```text
 請根據剛才的分析，幫我們實作 Phase 0 最小前端介面。
+
+請先閱讀 docs/output-paths.md。可展示成果必須能從 GitHub Pages 首頁看到或操作。
 
 限制：
 - 只處理 src/fixtures/phase-0/messy-reports.json
@@ -37,8 +40,14 @@
 3. 對 needs_review / unverified 顯示明顯標示
 4. 加上一個區塊列出「這筆資料仍不確定的地方」
 5. 若資料欄位不足，不要自動補成確定值
+6. 成果必須接進 src/app/App.tsx 或它匯入的 component
 
-請先提出要修改哪些檔案，再實作。
+請先提出：
+- 要修改哪些檔案
+- UI 如何從 src/app/App.tsx 進入
+- 哪些成果只屬於文件或觀察
+
+等我們確認後再實作。
 ```
 
 ## 補 observation 與 AI log
@@ -56,6 +65,7 @@
 3. 哪些欄位可能需要後續 schema 設計
 4. AI 在這次協作中幫助了什麼
 5. AI 有可能誤導我們什麼
+6. 目前成果是否已經能從 GitHub Pages 首頁看到；如果還沒有，缺哪個入口
 
 請不要把觀察寫成已確認事實，語氣要保留不確定性。
 ```

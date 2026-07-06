@@ -9,6 +9,7 @@
 - `docs/course-context.md`
 - `docs/tasks/00-how-to-use-task-cards.md`
 - `docs/tasks/01-phase-0-messy-sprint.md`
+- `docs/output-paths.md`
 - `src/fixtures/phase-0/messy-reports.json`
 
 ## 現在先不要想完整系統
@@ -24,4 +25,4 @@
 
 - `docs/phase0-observations.md`
 - `docs/ai-log.md`
-- 一個可操作但粗糙的最小 UI
+- 一個可操作但粗糙的最小 UI，且必須能從 GitHub Pages 首頁看到或操作

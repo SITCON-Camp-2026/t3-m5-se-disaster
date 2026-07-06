@@ -13,6 +13,7 @@ SITCON Camp 2026 軟體工程工作坊 starter repo。
 - AI-assisted development
 
 完整課程脈絡請先讀：[`docs/course-context.md`](docs/course-context.md)。
+成果放置與 GitHub Pages 展示規則請讀：[`docs/output-paths.md`](docs/output-paths.md)。
 
 ## 快速開始
 
@@ -30,9 +31,24 @@ pnpm build
 pnpm check
 ```
 
+## GitHub Pages 展示規則
+
+本 repo 會被 build 成 GitHub Pages 網頁。學員的前端成果必須能從部署後的首頁看到或操作。
+
+主要入口：
+
+```text
+src/main.tsx
+src/app/App.tsx
+```
+
+請把可展示成果接進 `src/app/App.tsx`，或由 `App.tsx` 匯入的 component。只新增 `docs/`、`tests/`、`events/` 或未被匯入的 component，不算完成前端 demo。
+
+詳細規則請看 [`docs/output-paths.md`](docs/output-paths.md)。
+
 ## 今日任務導航
 
-上課時請依照目前階段閱讀對應任務卡。任務卡會明確寫出來源、要做什麼、不做什麼、可用 prompt、交付成果與停止條件。
+上課時請依照目前階段閱讀對應任務卡。任務卡會明確寫出來源、要做什麼、不做什麼、成果放置位置、可用 prompt、交付成果與停止條件。
 
 | 階段                    | 任務卡                                                                             |
 | ----------------------- | ---------------------------------------------------------------------------------- |

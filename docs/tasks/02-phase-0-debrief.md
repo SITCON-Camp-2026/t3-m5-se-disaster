@@ -7,7 +7,9 @@
 ## 你現在拿到的來源
 
 - Phase 0 UI
+- GitHub Pages demo 或本機 dev server 畫面
 - `docs/phase0-observations.md`
+- `docs/output-paths.md`
 - 組內討論
 - 其他組的快速分享
 
@@ -21,6 +23,21 @@
 4. 哪個狀態最難定義？
 5. AI 有沒有替我們做需求決策？
 6. 如果另一組接手，會不知道什麼？
+7. 我們的成果是否真的接進 GitHub Pages demo，還是只存在於檔案裡？
+
+## 成果放置位置
+
+本階段主要產出是復盤文件，不要求新增 UI。
+
+文件：
+
+- 更新 `docs/phase0-observations.md`
+- 更新 `docs/ai-log.md`
+
+若復盤發現 Phase 0 UI 沒有接進首頁，請只做最小修正：
+
+- `src/app/App.tsx`
+- `src/components/`
 
 ## 你不需要做什麼
 
@@ -38,12 +55,14 @@
 ## 必須交付什麼
 
 - [ ] `docs/phase0-observations.md` 補完復盤後新增觀察
+- [ ] `docs/ai-log.md` 補上 AI 協作紀錄
 - [ ] 準備 60 秒口頭分享
 - [ ] 至少寫出 1 個 AI 可能誤導你們的地方
+- [ ] 檢查 Phase 0 成果是否能從 GitHub Pages 首頁看到
 
 ## 完成定義
 
-你們能清楚說出：Phase 0 卡住的不是技術，而是使用者、資料來源、查核狀態與責任邊界沒有定義清楚。
+你們能清楚說出：Phase 0 卡住的不是技術，而是使用者、資料來源、查核狀態、責任邊界與 demo 入口沒有定義清楚。
 
 ## 停止條件
 

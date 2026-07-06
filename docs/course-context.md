@@ -148,6 +148,8 @@ Teaching point:
 
 - `events/**` is external dirty input.
 - `src/fixtures/**` is internal normalized data.
+- Team-produced normalized data should go under `src/fixtures/workspace/`.
+- Demonstrable results must be visible from the Vite app entry path: `src/main.tsx` → `src/app/App.tsx`.
 - Do not make the core model chase every external format.
 - Prefer adapter functions for dirty incoming data.
 - Extend family schemas only when the internal domain semantics are truly missing.
@@ -187,6 +189,7 @@ Good uses of AI coding agents:
 - Check missing empty/error/uncertain states.
 - Improve README and handoff notes.
 - Update `docs/ai-log.md` when AI assistance affects requirements, schema, code, tests, event handling, or handoff.
+- Ensure front-end deliverables are connected to `src/app/App.tsx` so they appear in the GitHub Pages demo.
 
 Disallowed decisions for AI agents:
 
@@ -211,8 +214,24 @@ The starter must guide students through each phase of the day.
 
 - Generic phase task cards live in `docs/tasks/`.
 - Copyable coding-agent prompts live in `docs/prompts/`.
+- Output path and GitHub Pages demo rules live in `docs/output-paths.md`.
 - Team-specific brief and hidden event data do not live in the starter.
 - Active classroom tasks may also be delivered through GitHub Issues generated from the templates in `.github/ISSUE_TEMPLATE/`.
+
+## GitHub Pages deliverable rule
+
+The project is built and deployed as a GitHub Pages site. Student deliverables must be visible or operable from the deployed home page.
+
+Main app path:
+
+```text
+src/main.tsx
+src/app/App.tsx
+```
+
+A component, fixture, adapter, or feature is not a front-end deliverable until it is used by `src/app/App.tsx` or by a component imported from `App.tsx`.
+
+Docs, tests, and event files support the engineering process, but they do not replace the deployed demo.
 
 ## Acceptance for starter repo
 
