@@ -9,8 +9,8 @@ export function createPhase0Judgement(
   return {
     messyRecordId: record.id,
     possibleKind: "unknown",
-    confidence: record.verificationStatus === "unverified" ? "low" : "medium",
-    evidence: ["尚未整理：請由小組從原文標出判斷依據。"],
+    confidence: "low",
+    evidence: ["尚未建立整理草稿：請由小組從原文標出判斷依據。"],
     blockers: isVerified
       ? ["仍需確認這筆資訊適合進入哪個後續流程。"]
       : ["目前不是已確認資訊，不能直接行動或當成事實發布。"],

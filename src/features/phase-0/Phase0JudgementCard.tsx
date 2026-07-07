@@ -39,13 +39,22 @@ export function Phase0JudgementCard({
     <article className="judgement-card">
       <div className="judgement-card__header">
         <div>
-          <p className="eyebrow">安全邊界草稿</p>
-          <h3>{kindLabels[judgement.possibleKind]}</h3>
+          <p className="eyebrow">Starter 安全預設</p>
+          <h3>尚未建立整理草稿</h3>
         </div>
         <StatusBadge status={record.verificationStatus} />
       </div>
 
+      <p>
+        這張卡只保留保守的安全邊界，不是 agent 對這筆資料的整理答案。請用 Prompt
+        2 讓 coding agent 實作可建立、編輯與刪除的整理草稿。
+      </p>
+
       <dl className="judgement-summary">
+        <div>
+          <dt>候選類型</dt>
+          <dd>{kindLabels[judgement.possibleKind]}</dd>
+        </div>
         <div>
           <dt>信心程度</dt>
           <dd>{confidenceLabels[judgement.confidence]}</dd>
@@ -54,16 +63,17 @@ export function Phase0JudgementCard({
           <dt>下一步</dt>
           <dd>{nextStepLabels[judgement.suggestedNextStep]}</dd>
         </div>
-        <div>
-          <dt>能否直接行動</dt>
-          <dd>
-            {judgement.unsafeToActDirectly ? "不可直接行動" : "仍需確認情境"}
-          </dd>
-        </div>
       </dl>
 
+      <p>
+        能否直接行動：
+        <strong>
+          {judgement.unsafeToActDirectly ? "不可直接行動" : "仍需確認情境"}
+        </strong>
+      </p>
+
       <section>
-        <h4>判斷依據</h4>
+        <h4>目前只有安全預設</h4>
         <ul>
           {judgement.evidence.map((item) => (
             <li key={item}>{item}</li>

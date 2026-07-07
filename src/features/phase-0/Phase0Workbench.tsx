@@ -13,19 +13,9 @@ export function Phase0Workbench({
   selectedRecordId: string;
   onSelect: (recordId: string) => void;
 }) {
-  const judgements = records.map(createPhase0Judgement);
   const selectedRecord =
     records.find((record) => record.id === selectedRecordId) ?? records[0];
-  const selectedJudgement =
-    judgements.find(
-      (judgement) => judgement.messyRecordId === selectedRecord.id,
-    ) ?? judgements[0];
-  const unsafeCount = judgements.filter(
-    (judgement) => judgement.unsafeToActDirectly,
-  ).length;
-  const humanReviewCount = judgements.filter((judgement) =>
-    judgement.blockers.some((blocker) => blocker.includes("人工確認")),
-  ).length;
+  const safetyBoundary = createPhase0Judgement(selectedRecord);
 
   return (
     <div className="workbench">
@@ -57,7 +47,7 @@ export function Phase0Workbench({
           <RecordCard record={selectedRecord} />
 
           <Phase0JudgementCard
-            judgement={selectedJudgement}
+            judgement={safetyBoundary}
             record={selectedRecord}
           />
         </div>
@@ -65,11 +55,13 @@ export function Phase0Workbench({
         <aside className="workbench__checklist">
           <h3>第一階段完成檢查</h3>
           <ul>
-            <li>已產生 {judgements.length} 筆安全邊界草稿</li>
-            <li>{unsafeCount} 筆被標示為不可直接行動</li>
-            <li>{humanReviewCount} 筆包含人工確認提示</li>
+            <li>Starter 已載入 {records.length} 筆原始資訊</li>
+            <li>用 Prompt 2 讓 agent 加上建立、編輯、刪除或重設整理草稿</li>
+            <li>至少讓 6 筆原始資訊被嘗試整理成可編輯草稿</li>
             <li>至少挑 2 個候選判斷由人類質疑或修正</li>
-            <li>把資料品質問題寫進 observations</li>
+            <li>
+              把資料品質問題寫進 observations，並記錄 agent 哪裡不能直接相信
+            </li>
           </ul>
         </aside>
       </div>

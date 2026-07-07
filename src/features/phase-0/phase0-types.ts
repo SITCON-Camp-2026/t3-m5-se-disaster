@@ -33,4 +33,5 @@ export type Phase0JudgementDraft = {
   blockers: string[];
   suggestedNextStep: Phase0SuggestedNextStep;
   unsafeToActDirectly: boolean;
+  humanReviewNote?: string;
 };
