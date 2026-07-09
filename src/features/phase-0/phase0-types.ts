@@ -25,6 +25,18 @@ export type Phase0MessyRecord = {
   updatedAt: string;
 };
 
+export type Phase0AccuracyIssue = {
+  label: string;
+  detail: string;
+};
+
+export type Phase0CredibilityHint = {
+  score: number;
+  level: "低" | "偏低" | "中";
+  reasons: string[];
+  warning: string;
+};
+
 export type Phase0JudgementDraft = {
   messyRecordId: string;
   possibleKind: Phase0PossibleKind;

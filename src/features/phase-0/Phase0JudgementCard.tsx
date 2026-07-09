@@ -1,4 +1,5 @@
 import { StatusBadge } from "../../components/StatusBadge";
+import { findPhase0AccuracyIssues } from "./phase0-heuristics";
 import type { Phase0JudgementDraft, Phase0MessyRecord } from "./phase0-types";
 
 const kindLabels: Record<Phase0JudgementDraft["possibleKind"], string> = {
@@ -35,6 +36,8 @@ export function Phase0JudgementCard({
   judgement: Phase0JudgementDraft;
   record: Phase0MessyRecord;
 }) {
+  const issues = findPhase0AccuracyIssues(record);
+
   return (
     <article className="judgement-card">
       <div className="judgement-card__header">
@@ -73,10 +76,13 @@ export function Phase0JudgementCard({
       </p>
 
       <section>
-        <h4>目前只有安全預設</h4>
+        <h4>沒有準確資訊的地方</h4>
         <ul>
-          {judgement.evidence.map((item) => (
-            <li key={item}>{item}</li>
+          {issues.map((issue) => (
+            <li key={issue.label}>
+              <strong>{issue.label}：</strong>
+              {issue.detail}
+            </li>
           ))}
         </ul>
       </section>

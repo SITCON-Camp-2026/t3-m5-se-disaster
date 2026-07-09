@@ -28,12 +28,25 @@ export function App() {
   return (
     <main className="layout">
       <header className="hero">
-        <p className="eyebrow">SITCON Camp 2026</p>
-        <h1>災害資訊整理工作台</h1>
-        <p>
-          第一階段先用 coding agent
-          做出可展示的前端原型，再從成果中看見資料品質、角色、狀態與來源的限制。
-        </p>
+        <div>
+          <p className="eyebrow">SITCON Camp 2026</p>
+          <h1>災害資訊整理工作台</h1>
+          <p>
+            第一階段先用 coding agent
+            做出可展示的前端原型，再從成果中看見資料品質、角色、狀態與來源的限制。
+          </p>
+        </div>
+        <div className="cat-mark" aria-hidden="true">
+          <span className="cat-mark__ear cat-mark__ear--left" />
+          <span className="cat-mark__ear cat-mark__ear--right" />
+          <span className="cat-mark__face">
+            <span className="cat-mark__eye cat-mark__eye--left" />
+            <span className="cat-mark__eye cat-mark__eye--right" />
+            <span className="cat-mark__nose" />
+            <span className="cat-mark__whisker cat-mark__whisker--left" />
+            <span className="cat-mark__whisker cat-mark__whisker--right" />
+          </span>
+        </div>
       </header>
 
       <nav className="tabs" aria-label="第一階段工作區">
