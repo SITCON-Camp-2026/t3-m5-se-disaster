@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "../src/app/App";
 
 describe("App", () => {
@@ -7,6 +7,10 @@ describe("App", () => {
     window.history.pushState({}, "", path);
     return render(<App />);
   }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   it("renders starter title", () => {
     renderAt("/");
@@ -149,7 +153,8 @@ describe("App", () => {
     expect(screen.getByLabelText("v1 流程輸出統計")).toBeInTheDocument();
     expect(screen.getAllByText("Phase 0 原始資訊").length).toBeGreaterThan(0);
     expect(screen.getByLabelText("v1 草稿簡易頁")).toBeInTheDocument();
-    expect(screen.getByText("尚未交出草稿")).toBeInTheDocument();
+    expect(screen.getByText("尚未保存草稿")).toBeInTheDocument();
+    expect(screen.getAllByText(/老雜貨店後面/).length).toBeGreaterThan(1);
     expect(
       screen.getByRole("button", { name: "編輯草稿" }),
     ).toBeInTheDocument();
@@ -234,14 +239,17 @@ describe("App", () => {
     });
 
     expect(screen.getByText("這筆草稿有尚未保存的修改。")).toBeInTheDocument();
+    expect(screen.getByText("未保存")).toBeInTheDocument();
     expect(
       screen.getByDisplayValue("只能當成待確認線索，不能變成清泥任務。"),
     ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "保存並交出草稿" }));
+    fireEvent.click(screen.getByRole("button", { name: "保存為本頁交接草稿" }));
     expect(screen.getByLabelText("v1 草稿簡易頁")).toBeInTheDocument();
-    expect(screen.getByText("M-001 簡易頁面")).toBeInTheDocument();
-    expect(screen.getByText("草稿已交出")).toBeInTheDocument();
+    expect(
+      screen.getByText("M-001 給下一位協作者看的草稿"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("草稿已保存")).toBeInTheDocument();
     expect(
       screen.getByText("原文只有老雜貨店後面，地點仍不精準。"),
     ).toBeInTheDocument();
@@ -249,12 +257,44 @@ describe("App", () => {
       screen.getByText("下一位請先人工確認，不要直接派人。"),
     ).toBeInTheDocument();
     expect(screen.getAllByText(/本頁草稿已於/).length).toBeGreaterThan(0);
-    expect(screen.getByText("已交出")).toBeInTheDocument();
+    expect(screen.getByText("已保存草稿")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "編輯草稿" }));
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
     fireEvent.click(screen.getByRole("button", { name: "清空這筆草稿" }));
+    expect(confirmSpy).toHaveBeenCalledWith(
+      "確定要清空這筆本頁草稿嗎？這不會刪除原始資訊，但會清掉已填寫的草稿內容。",
+    );
     expect(screen.getByLabelText("v1 原文線索補充")).toHaveValue("");
     expect(screen.getByText("這筆草稿尚未填寫或保存。")).toBeInTheDocument();
+  });
+
+  it("warns before switching records with unsaved v1 draft edits", () => {
+    renderAt("/v1/");
+
+    fireEvent.click(screen.getByRole("button", { name: "編輯草稿" }));
+    fireEvent.change(screen.getByLabelText("v1 整理者判斷"), {
+      target: { value: "這筆還沒保存，先不要離開。" },
+    });
+
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
+    fireEvent.click(screen.getByRole("button", { name: /M-002/ }));
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      "這筆草稿有尚未保存的修改，確定要先切換到其他資料嗎？",
+    );
+    expect(screen.getByText("M-001 本頁草稿")).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue("這筆還沒保存，先不要離開。"),
+    ).toBeInTheDocument();
+
+    confirmSpy.mockReturnValue(true);
+    fireEvent.click(screen.getByRole("button", { name: /M-002/ }));
+
+    expect(
+      screen.getByText("M-002 給下一位協作者看的草稿"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("未保存")).toBeInTheDocument();
   });
 
   it("lets learners swap v1 manual outcomes between review, hold, and handoff", () => {
@@ -299,6 +339,10 @@ describe("App", () => {
       screen.getByText(/仍不是已確認資料，也不是任務/),
     ).toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("button", { name: "保存為本頁交接草稿" }));
+    expect(screen.getByText("本頁手動調整：可交接草稿")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "編輯草稿" }));
     fireEvent.click(screen.getByRole("button", { name: "回復流程預設" }));
     expect(
       screen.getByText("目前使用流程預設：需要人工確認。"),

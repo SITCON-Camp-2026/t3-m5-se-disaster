@@ -904,6 +904,12 @@ textarea:focus-visible {
   text-align: left;
 }
 
+.v1-queue small {
+  color: #52635f;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
 .v1-queue strong {
   color: #5c4f2d;
   font-size: 0.86rem;
@@ -918,6 +924,11 @@ textarea:focus-visible {
   font-size: 0.8rem;
   font-style: normal;
   font-weight: 800;
+}
+
+.v1-queue em.v1-queue__unsaved {
+  background: var(--warning-bg);
+  color: var(--warning-text);
 }
 
 .v1-detail {

@@ -62,6 +62,10 @@ function getManualOutcomeLabel(outcome: V1FlowOutcome) {
   );
 }
 
+function summarizeRawText(rawText: string) {
+  return rawText.length > 28 ? `${rawText.slice(0, 28)}...` : rawText;
+}
+
 function applyManualOutcome(
   assessment: V1FlowAssessment,
   override: V1FlowOutcome | undefined,
@@ -166,9 +170,19 @@ export function V1FlowWorkbench({ records }: { records: Phase0MessyRecord[] }) {
     JSON.stringify(selectedDraft) !== JSON.stringify(savedDraft);
   const lastSavedAt = lastSavedAtByRecord[selectedRecord?.id ?? ""];
   const selectedOutcomeOverride = outcomeOverrides[selectedRecord?.id ?? ""];
+  const selectedOutcomeState = selectedOutcomeOverride
+    ? `本頁手動調整：${getManualOutcomeLabel(selectedOutcomeOverride)}`
+    : selectedAssessment.outcomeLabel;
   const isShowingSubmittedDraft =
     submittedRecordId === selectedRecord?.id && Boolean(lastSavedAt);
   const isEditingDraft = editingRecordId === selectedRecord?.id;
+
+  function hasRecordUnsavedDraft(recordId: string) {
+    return (
+      JSON.stringify(drafts[recordId] ?? createEmptyV1Draft(recordId)) !==
+      JSON.stringify(savedDrafts[recordId] ?? createEmptyV1Draft(recordId))
+    );
+  }
 
   function updateDraft(field: V1DraftField, value: string) {
     setSubmittedRecordId(undefined);
@@ -198,6 +212,14 @@ export function V1FlowWorkbench({ records }: { records: Phase0MessyRecord[] }) {
   }
 
   function resetDraft() {
+    const shouldReset = window.confirm(
+      "確定要清空這筆本頁草稿嗎？這不會刪除原始資訊，但會清掉已填寫的草稿內容。",
+    );
+
+    if (!shouldReset) {
+      return;
+    }
+
     const emptyDraft = createEmptyV1Draft(selectedRecord.id);
     setDrafts((currentDrafts) => ({
       ...currentDrafts,
@@ -225,6 +247,14 @@ export function V1FlowWorkbench({ records }: { records: Phase0MessyRecord[] }) {
   }
 
   function selectRecord(recordId: string) {
+    if (
+      isEditingDraft &&
+      hasUnsavedDraft &&
+      !window.confirm("這筆草稿有尚未保存的修改，確定要先切換到其他資料嗎？")
+    ) {
+      return;
+    }
+
     setSelectedRecordId(recordId);
     setEditingRecordId(undefined);
   }
@@ -311,9 +341,18 @@ export function V1FlowWorkbench({ records }: { records: Phase0MessyRecord[] }) {
               onClick={() => selectRecord(assessment.recordId)}
             >
               <span>{assessment.recordId}</span>
+              <small>
+                {summarizeRawText(
+                  records.find((record) => record.id === assessment.recordId)
+                    ?.rawText ?? "",
+                )}
+              </small>
               <strong>{assessment.outcomeLabel}</strong>
               {lastSavedAtByRecord[assessment.recordId] ? (
-                <em>已交出</em>
+                <em>已保存草稿</em>
+              ) : null}
+              {hasRecordUnsavedDraft(assessment.recordId) ? (
+                <em className="v1-queue__unsaved">未保存</em>
               ) : null}
             </button>
           ))}
@@ -342,9 +381,9 @@ export function V1FlowWorkbench({ records }: { records: Phase0MessyRecord[] }) {
             <section className="v1-handoff-page" aria-label="v1 草稿簡易頁">
               <div>
                 <p className="eyebrow">
-                  {isShowingSubmittedDraft ? "草稿已交出" : "尚未交出草稿"}
+                  {isShowingSubmittedDraft ? "草稿已保存" : "尚未保存草稿"}
                 </p>
-                <h4>{selectedRecord.id} 簡易頁面</h4>
+                <h4>{selectedRecord.id} 給下一位協作者看的草稿</h4>
               </div>
               <p>
                 {isShowingSubmittedDraft
@@ -354,7 +393,7 @@ export function V1FlowWorkbench({ records }: { records: Phase0MessyRecord[] }) {
               <dl className="v1-handoff-summary">
                 <div>
                   <dt>流程狀態</dt>
-                  <dd>{selectedAssessment.outcomeLabel}</dd>
+                  <dd>{selectedOutcomeState}</dd>
                 </div>
                 <div>
                   <dt>{isShowingSubmittedDraft ? "保存時間" : "草稿狀態"}</dt>
@@ -498,7 +537,7 @@ export function V1FlowWorkbench({ records }: { records: Phase0MessyRecord[] }) {
                 </div>
                 <div className="v1-edit-panel__actions">
                   <button type="button" onClick={saveDraft}>
-                    保存並交出草稿
+                    保存為本頁交接草稿
                   </button>
                   <button type="button" onClick={resetDraft}>
                     清空這筆草稿
