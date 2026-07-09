@@ -3,13 +3,18 @@ import { describe, expect, it } from "vitest";
 import { App } from "../src/app/App";
 
 describe("App", () => {
+  function renderAt(path: string) {
+    window.history.pushState({}, "", path);
+    return render(<App />);
+  }
+
   it("renders starter title", () => {
-    render(<App />);
+    renderAt("/");
     expect(screen.getByText("災害資訊整理工作台")).toBeInTheDocument();
   });
 
   it("keeps the home page focused on phase 0 tabs", () => {
-    render(<App />);
+    renderAt("/");
 
     expect(
       screen.getByRole("button", { name: "原始資訊" }),
@@ -29,10 +34,14 @@ describe("App", () => {
     expect(
       screen.queryByRole("button", { name: "人員指派" }),
     ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "前往 v1" })).toHaveAttribute(
+      "href",
+      "/v1/",
+    );
   });
 
   it("shows review states in the phase 0 workbench", () => {
-    render(<App />);
+    renderAt("/");
 
     fireEvent.click(screen.getByRole("button", { name: "整理工作台" }));
 
@@ -46,7 +55,7 @@ describe("App", () => {
   });
 
   it("shows the learner's presentation sections as unconfirmed draft summaries", () => {
-    render(<App />);
+    renderAt("/");
 
     fireEvent.click(screen.getByRole("button", { name: "整理工作台" }));
 
@@ -58,14 +67,14 @@ describe("App", () => {
   });
 
   it("shows accuracy issues on raw records", () => {
-    render(<App />);
+    renderAt("/");
 
     expect(screen.getAllByText("不準確或待確認訊號").length).toBeGreaterThan(0);
     expect(screen.getAllByText("查核狀態不足").length).toBeGreaterThan(0);
   });
 
   it("lets learners edit, delete, create, and reset draft content", () => {
-    render(<App />);
+    renderAt("/");
 
     fireEvent.click(screen.getByRole("button", { name: "整理工作台" }));
 
@@ -130,5 +139,169 @@ describe("App", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "重設 6 筆預設草稿" }));
     expect(screen.getByText("目前有 6 筆可編輯整理草稿")).toBeInTheDocument();
+  });
+
+  it("renders the v1 flow workbench from /v1/", () => {
+    renderAt("/v1/");
+
+    expect(screen.getByText("整理不是確認")).toBeInTheDocument();
+    expect(screen.getByText("v1 / 原始資訊判讀工作台")).toBeInTheDocument();
+    expect(screen.getByLabelText("v1 流程輸出統計")).toBeInTheDocument();
+    expect(screen.getAllByText("Phase 0 原始資訊").length).toBeGreaterThan(0);
+    expect(screen.getByLabelText("v1 草稿簡易頁")).toBeInTheDocument();
+    expect(screen.getByText("尚未交出草稿")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "編輯草稿" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("v1 可編輯整理草稿"),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("v1 原文線索補充")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("v1 整理者判斷")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("v1 仍待確認")).not.toBeInTheDocument();
+    expect(screen.getByText("判斷紀錄")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "回到 Phase 0" })).toHaveAttribute(
+      "href",
+      "/",
+    );
+  });
+
+  it("keeps v1 outputs conservative and filterable", () => {
+    renderAt("/v1/");
+
+    expect(
+      screen.getByText("所有輸出都不是已確認資料，也不是任務。"),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("暫時不採用為候選草稿").length).toBeGreaterThan(
+      0,
+    );
+    expect(screen.getAllByText("需要人工確認").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: "編輯草稿" }));
+    expect(
+      screen.getByText("不能由 AI 判斷資訊是真是假。"),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "需要人工確認" }));
+    expect(screen.getByLabelText("選擇原始資訊")).toBeInTheDocument();
+    expect(screen.queryByText("AI 輔助可信度")).not.toBeInTheDocument();
+  });
+
+  it("does not show generated v1 judgement lists above the editable draft", () => {
+    renderAt("/v1/");
+
+    fireEvent.click(screen.getByRole("button", { name: /M-010/ }));
+
+    expect(
+      screen.queryByText("資訊取得方式：volunteer_update"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("查核狀態：needs_review"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("更新時間：2026-07-20T14:35:00+08:00"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("原文有時間、現場回報、數量或下一次更新線索。"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        "查核狀態不足：目前狀態是 needs_review，只能當成待整理線索。",
+      ),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("這筆資訊是否仍有效。")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("來源是否為親眼確認、轉述或截圖。"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("lets learners edit and save v1 handoff draft notes", () => {
+    renderAt("/v1/");
+
+    fireEvent.click(screen.getByRole("button", { name: "編輯草稿" }));
+
+    fireEvent.change(screen.getByLabelText("v1 原文線索補充"), {
+      target: { value: "原文只有老雜貨店後面，地點仍不精準。" },
+    });
+    fireEvent.change(screen.getByLabelText("v1 整理者判斷"), {
+      target: { value: "只能當成待確認線索，不能變成清泥任務。" },
+    });
+    fireEvent.change(screen.getByLabelText("v1 仍待確認"), {
+      target: { value: "需要確認來源、現況、精確地點與安全性。" },
+    });
+    fireEvent.change(screen.getByLabelText("v1 交接提醒"), {
+      target: { value: "下一位請先人工確認，不要直接派人。" },
+    });
+
+    expect(screen.getByText("這筆草稿有尚未保存的修改。")).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue("只能當成待確認線索，不能變成清泥任務。"),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "保存並交出草稿" }));
+    expect(screen.getByLabelText("v1 草稿簡易頁")).toBeInTheDocument();
+    expect(screen.getByText("M-001 簡易頁面")).toBeInTheDocument();
+    expect(screen.getByText("草稿已交出")).toBeInTheDocument();
+    expect(
+      screen.getByText("原文只有老雜貨店後面，地點仍不精準。"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("下一位請先人工確認，不要直接派人。"),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/本頁草稿已於/).length).toBeGreaterThan(0);
+    expect(screen.getByText("已交出")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "編輯草稿" }));
+    fireEvent.click(screen.getByRole("button", { name: "清空這筆草稿" }));
+    expect(screen.getByLabelText("v1 原文線索補充")).toHaveValue("");
+    expect(screen.getByText("這筆草稿尚未填寫或保存。")).toBeInTheDocument();
+  });
+
+  it("lets learners swap v1 manual outcomes between review, hold, and handoff", () => {
+    renderAt("/v1/");
+
+    fireEvent.click(screen.getByRole("button", { name: "編輯草稿" }));
+
+    expect(
+      screen.getByText("目前使用流程預設：需要人工確認。"),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("radio", { name: /暫時不採用/ }));
+
+    expect(
+      screen.getByText("目前是本頁手動調整：暫時不採用。"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("本頁手動調整流程輸出：暫時不採用。"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/先保留原文與原因，不放入候選整理/).length,
+    ).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("radio", { name: /需要人工確認/ }));
+
+    expect(
+      screen.getByText("目前是本頁手動調整：需要人工確認。"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("本頁手動調整流程輸出：需要人工確認。"),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("radio", { name: /可交接草稿/ }));
+
+    expect(
+      screen.getByText("目前是本頁手動調整：可交接草稿。"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("本頁手動調整流程輸出：可交接草稿。"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/仍不是已確認資料，也不是任務/),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "回復流程預設" }));
+    expect(
+      screen.getByText("目前使用流程預設：需要人工確認。"),
+    ).toBeInTheDocument();
   });
 });
